@@ -1,36 +1,24 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Manthan Sankpal — Portfolio
 
-## Getting Started
-
-First, run the development server:
+Next.js 16 · TypeScript · Tailwind 4 · GSAP/ScrollTrigger · Lenis · Framer Motion · Three.js
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev            # http://localhost:3000
+npm run build && npm start
+npm run test:visual -- http://localhost:3000   # Playwright smoke test (uses installed Chrome), screenshots → tests/shots
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Edit your content in `src/content.ts`** — intro, about, email, socials and projects are placeholders (marked TODO).
+Add project images to `public/images/work/` and set `image` on a project; otherwise a generated cover is shown.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Design research and rationale: [`docs/RESEARCH.md`](docs/RESEARCH.md).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Section | File |
+|---|---|
+| Preloader (monogram weight morph + curtain) | `src/components/Preloader.tsx` |
+| Header, scramble nav, magnetic menu | `src/components/Header.tsx` |
+| Hero (layered dual marquee, velocity-driven) | `src/components/Hero.tsx` |
+| Work list + cursor preview | `src/components/Work.tsx` |
+| WebGL "signal field" interlude | `src/components/SignalSection.tsx`, `SignalField.tsx` |
+| About, Footer | `src/components/About.tsx`, `Footer.tsx` |
+| Shared motion helpers | `src/lib/fx.ts` |
