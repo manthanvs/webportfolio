@@ -95,6 +95,15 @@ async function run(name, viewport, isMobile) {
     }
   }
 
+  // contact + project links from content.ts render
+  const links = await page.evaluate(() => ({
+    socials: [...document.querySelectorAll("#contact a[target=_blank]")].map((a) => a.hostname),
+    mail: document.querySelector('#contact a[href^="mailto:"]')?.getAttribute("href") ?? "",
+    work: document.querySelectorAll("#work a[href^='http']").length,
+  }));
+  if (links.socials.length < 4 || !links.mail) fail(`[${name}] footer links missing: ${JSON.stringify(links)}`);
+  if (!links.work) fail(`[${name}] project links missing`);
+
   // menu opens / closes and navigates
   await page.evaluate(() => window.scrollTo(0, 1400));
   await page.waitForTimeout(900);

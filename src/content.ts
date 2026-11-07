@@ -1,12 +1,13 @@
-// All personal content lives here. Anything marked TODO is a placeholder —
-// replace it with real information before publishing. Nothing here is invented
-// as fact: projects are deliberately labelled as placeholders.
+// All personal content lives here. Email, profile links and projects come from Manthan's
+// resumes, every link verified on 2026-11-08 (GitHub/LeetCode/HackerRank via their public APIs,
+// LinkedIn via the accounts linked on his GitHub, Armourr via a live request).
+// Anything still marked TODO is placeholder copy — replace it before publishing.
 
 export const site = {
   name: "Manthan Sankpal",
   firstName: "Manthan",
   role: "Developer", // TODO: refine, e.g. "Creative Developer" / "Full-stack Developer"
-  email: "", // TODO: add a public contact email — the contact button hides until set
+  email: "manthansankpal745@gmail.com",
   intro:
     "I build web experiences where engineering and design meet — interfaces that feel considered, fast, and alive.", // TODO: rewrite in your own voice
   about: [
@@ -15,9 +16,10 @@ export const site = {
     "Add a second paragraph about how you work, or what you're currently learning.",
   ],
   socials: [
-    // TODO: real links. Entries with an empty href are hidden.
-    { label: "GitHub", href: "" },
-    { label: "LinkedIn", href: "" },
+    { label: "GitHub", href: "https://github.com/manthanvs" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/manthanvs/" },
+    { label: "LeetCode", href: "https://leetcode.com/u/manthanvs/" },
+    { label: "HackerRank", href: "https://www.hackerrank.com/profile/manthanvs" },
   ],
 };
 
@@ -30,10 +32,10 @@ export type Project = {
   hue: number; // drives the generated cover when no image is set
 };
 
-// TODO: replace with real projects. Generated covers are used until `image` is set.
+// From the resumes (names, stacks, dates). Generated covers are used until `image` is set.
 export const projects: Project[] = [
-  { title: "Project One", kind: "Placeholder · Design & Development", year: "—", hue: 18 },
-  { title: "Project Two", kind: "Placeholder · Development", year: "—", hue: 248 },
-  { title: "Project Three", kind: "Placeholder · Interaction", year: "—", hue: 160 },
-  { title: "Project Four", kind: "Placeholder · Web App", year: "—", hue: 300 },
+  { title: "ORBIS", kind: "Android app · Kotlin, Java NIO, Jetpack Compose", year: "2026", href: "https://github.com/manthanvs/ORBIS", hue: 248 },
+  { title: "ACLAS", kind: "Developer analytics · Python, Django REST, TypeScript", year: "2026", href: "https://github.com/manthanvs/ACLAS", hue: 160 },
+  { title: "Sales Data Pipeline", kind: "Data pipeline · n8n, Docker, PostgreSQL, Power BI", year: "2026", href: "https://github.com/manthanvs/powerbi-n8n-dashboard", hue: 300 },
+  { title: "Armourr India", kind: "Full-stack web app · React, Node.js, Express, MongoDB", year: "2026", href: "https://armourr-india.onrender.com", hue: 18 },
 ];
