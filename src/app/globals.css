@@ -57,6 +57,9 @@ html.lenis body {
 .notch {
   clip-path: polygon(0 0, 38% 0, 42% 18px, 100% 18px, 100% calc(100% - 28px), calc(100% - 28px) 100%, 0 100%);
 }
+.notch-sm {
+  clip-path: polygon(0 0, 34% 0, 38% 10px, 100% 10px, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+}
 
 .marquee-track {
   display: flex;

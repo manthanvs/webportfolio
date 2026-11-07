@@ -78,3 +78,40 @@ One idea ties it together: **a calm, editorial portfolio (Dennis) that occasiona
 | Magnetic round buttons | Dennis [O] | Same mechanic, own styling |
 
 Performance rules: one WebGL canvas, paused when off-screen; `prefers-reduced-motion` disables marquee/scramble/particles; images via `next/image`.
+
+---
+
+## 4. Pass 2 (2026-11-08) — feedback round
+
+Feedback: loader looked off, Home "not working properly", transitions overlapping, remove the Interlude, more
+KPRVERSE immersion in About and overall. Captured with Playwright filmstrips (headless Chrome, 1440×900) of both
+the old build and kprverse.com, plus a per-element scroll-speed probe and a scan of KPR's public JS bundles.
+
+### Bugs found in pass 1 (observed in filmstrips)
+- **Load glitch [O]:** at ~2.9s the curtain lifted onto a fully drawn hero, then at ~3.5s the name rows vanished and
+  the portrait re-faded in — the loader exit and hero entrance ran on separate clocks.
+- **Hero broke on first scroll [O]:** after 120px of wheel both name rows disappeared. The entrance (`from yPercent 110`)
+  and the scroll parallax (`to yPercent -40`) targeted the *same* elements, so the parallax recorded 110 as its start.
+- **Menu button lag [I from code]:** a CSS `transition-transform` on the same element as the GSAP magnetic transform.
+
+### KPRVERSE, second look
+- [O] Loader: white page, one hairline bar, mono `LOADING — n%` left, the real asset URLs being fetched streaming on the
+  right, sound toggle below; a morphing glyph grid resolves into the logo.
+- [O] Scroll: the full-bleed hero shrinks into a notched "folder-tab" card; images in a section move at different speeds;
+  the next section is revealed through a widening vertical slit; a glyph-grid wipe between sections; eye-detail crops
+  in notched frames next to the main art; a 3D fanned carousel (cards at `translateZ` −80…−320px).
+- [O] DOM: full-screen sections parked at `translateY(900px)` (100vh) and slid over the previous one; heading lines start
+  at `translateY` 0/45/90/135px inside masks (line-by-line reveal).
+- [O] Bundles: GSAP + ScrollTrigger (136 refs) and SplitText in the Nuxt entry; OGL (WebGL) in the main bundle.
+
+### Changes
+| Area | Change | Source |
+|---|---|---|
+| Loader | Hairline bar, name/role labels, real progress (fonts + hero portrait), last-loaded file name; bar collapses into a vertical line that splits the screen open | KPR loader + vertical-line intro [O] |
+| Sequencing | One `loading → reveal → done` phase in `Site.tsx`; the hero's hidden state is set before first paint and its entrance starts as the split opens | fixes load glitch |
+| Hero | Entrance on inner elements, scroll/pointer parallax on wrappers; desktop pins the hero while a rounded content sheet slides over it, the frame shrinking into a notched card with depth-ordered layers; flex centring instead of CSS translate | KPR hero→card + stacked sections [O]; fixes scroll bug |
+| Hero photo | Now the B&W portrait (user's choice); backdrop sampled from its near-black studio (edges #040404–#080808, faint ~#0e spotlight) so the masked photo edges vanish; the dark hero continues the ink loader into the split reveal | — |
+| Photos | Colour headshot moved to the About main frame; B&W eye-line crop as the About detail strip — both photos in the dossier | — |
+| Interlude | Removed, with `three` / `@types/three` | feedback |
+| About | Collage at three parallax depths (portrait, 3× eye-line detail, data card using only content.ts facts), scanner reveal with signal edges, stacked heavy type with index labels drifting apart, SplitText masked lines, rotating crosshair | KPR detail crops, line masks, layered parallax, crosshair [O] |
+| Header | Magnetic button and its CSS scale-in split onto separate elements; header fades in at reveal | fixes lag |

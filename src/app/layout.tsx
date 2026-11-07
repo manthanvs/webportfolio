@@ -27,7 +27,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${bricolage.variable} ${jbmono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {/* the preloader only leaves via JS — never trap no-JS visitors behind it */}
+        <noscript>
+          <style>{"[data-preloader]{display:none!important}"}</style>
+        </noscript>
+        {children}
+      </body>
     </html>
   );
 }

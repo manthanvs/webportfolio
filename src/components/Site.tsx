@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger, scroller, reducedMotion } from "@/lib/fx";
 import Preloader from "./Preloader";
@@ -8,12 +8,16 @@ import Header from "./Header";
 import Hero from "./Hero";
 import Intro from "./Intro";
 import Work from "./Work";
-import SignalSection from "./SignalSection";
 import About from "./About";
 import Footer from "./Footer";
 
+type Phase = "loading" | "reveal" | "done";
+
 export default function Site() {
-  const [ready, setReady] = useState(false);
+  // One phase drives every intro animation, so the loader exit, hero entrance and header never run on separate clocks.
+  const [phase, setPhase] = useState<Phase>("loading");
+  const onReveal = useCallback(() => setPhase("reveal"), []);
+  const onDone = useCallback(() => setPhase("done"), []);
 
   useEffect(() => {
     history.scrollRestoration = "manual";
@@ -34,21 +38,23 @@ export default function Site() {
   }, []);
 
   useEffect(() => {
-    if (!ready) return;
+    if (phase !== "done") return;
     scroller.lenis?.start();
     ScrollTrigger.refresh();
-  }, [ready]);
+  }, [phase]);
 
   return (
     <>
-      <Preloader onDone={() => setReady(true)} />
-      <Header />
+      <Preloader onReveal={onReveal} onDone={onDone} />
+      <Header visible={phase !== "loading"} />
       <main>
-        <Hero ready={ready} />
-        <Intro />
-        <Work />
-        <SignalSection />
-        <About />
+        <Hero play={phase !== "loading"} />
+        {/* content sheet: slides up over the pinned hero (desktop), overlaps its bottom edge (mobile) */}
+        <div className="relative z-10 -mt-7 overflow-clip rounded-t-[28px] bg-bone shadow-[0_-30px_60px_rgba(0,0,0,0.18)] md:mt-0 md:rounded-t-[44px]">
+          <Intro />
+          <Work />
+          <About />
+        </div>
       </main>
       <Footer />
     </>

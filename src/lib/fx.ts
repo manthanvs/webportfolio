@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
 import type Lenis from "lenis";
 
-gsap.registerPlugin(ScrollTrigger);
-export { gsap, ScrollTrigger };
+gsap.registerPlugin(ScrollTrigger, SplitText);
+export { gsap, ScrollTrigger, SplitText };
 
-// Single Lenis instance, set by <SmoothScroll>.
+/** useLayoutEffect on the client (sets initial animation states before first paint), useEffect on the server. */
+export const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+// Single Lenis instance, set by <Site>.
 export const scroller: { lenis: Lenis | null } = { lenis: null };
 
 export function scrollTo(target: string | number) {

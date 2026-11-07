@@ -34,7 +34,7 @@ function NavLink({ label, href, onNavigate }: { label: string; href: string; onN
   );
 }
 
-export default function Header() {
+export default function Header({ visible }: { visible: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [light, setLight] = useState(false); // true when the header sits over a bone section
   const [open, setOpen] = useState(false);
@@ -43,7 +43,12 @@ export default function Header() {
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 140);
-      const under = document.elementFromPoint(window.innerWidth / 2, 40)?.closest("[data-theme]");
+      // sample under the name (left), where legibility matters — skipping the header's own (clickable) name link;
+      // dark images inside light sections declare data-theme="dark"
+      const under = document
+        .elementsFromPoint(48, 40)
+        .find((el) => !el.closest("header"))
+        ?.closest("[data-theme]");
       setLight(under?.getAttribute("data-theme") === "light");
     };
     onScroll();
@@ -62,7 +67,9 @@ export default function Header() {
   return (
     <>
       <header
-        className={`pointer-events-none fixed inset-x-0 top-0 z-50 transition-colors duration-500 ${light ? "text-ink" : "text-white"}`}
+        className={`pointer-events-none fixed inset-x-0 top-0 z-50 transition-[color,opacity,translate] duration-700 ease-out-expo ${
+          light ? "text-ink" : "text-white"
+        } ${visible ? "opacity-100" : "-translate-y-3 opacity-0"}`}
       >
         <div className="flex items-center justify-between px-5 py-5 md:px-10 md:py-7">
           <a
@@ -91,25 +98,32 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Round menu button: always on mobile, appears after scroll on desktop */}
-      <button
-        ref={menuBtn}
-        onClick={() => setOpen((o) => !o)}
-        aria-label={open ? "Close menu" : "Open menu"}
-        aria-expanded={open}
-        className={`fixed right-4 top-4 z-[70] grid h-14 w-14 place-items-center rounded-full border border-white/10 bg-ink text-bone transition-transform duration-500 ease-out-expo md:right-8 md:top-6 md:h-[72px] md:w-[72px] ${
+      {/* Round menu button: always on mobile, appears after scroll on desktop.
+          The wrapper owns the CSS scale-in; the button owns the GSAP magnetic transform — never both on one element. */}
+      <div
+        className={`fixed right-4 top-4 z-[70] transition-[scale,opacity] duration-500 ease-out-expo md:right-8 md:top-6 ${
           scrolled || open ? "scale-100" : "scale-100 md:scale-0"
-        } ${open ? "!bg-signal !text-ink" : ""}`}
+        } ${visible ? "opacity-100" : "opacity-0"}`}
       >
-        <span className="relative block h-3 w-6">
-          <span
-            className={`absolute left-0 h-px w-full bg-current transition-transform duration-500 ${open ? "top-1/2 rotate-45" : "top-0"}`}
-          />
-          <span
-            className={`absolute left-0 h-px w-full bg-current transition-transform duration-500 ${open ? "top-1/2 -rotate-45" : "bottom-0"}`}
-          />
-        </span>
-      </button>
+        <button
+          ref={menuBtn}
+          onClick={() => setOpen((o) => !o)}
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          className={`grid h-14 w-14 place-items-center rounded-full border border-white/10 transition-colors duration-300 md:h-[72px] md:w-[72px] ${
+            open ? "bg-signal text-ink" : "bg-ink text-bone"
+          }`}
+        >
+          <span className="relative block h-3 w-6">
+            <span
+              className={`absolute left-0 h-px w-full bg-current transition-transform duration-500 ${open ? "top-1/2 rotate-45" : "top-0"}`}
+            />
+            <span
+              className={`absolute left-0 h-px w-full bg-current transition-transform duration-500 ${open ? "top-1/2 -rotate-45" : "bottom-0"}`}
+            />
+          </span>
+        </button>
+      </div>
 
       <AnimatePresence>
         {open && (
