@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { gsap, ScrollTrigger, SplitText, reducedMotion, useScramble } from "@/lib/fx";
+import { gsap, ScrollTrigger, SplitText, reducedMotion, useScramble, withBase } from "@/lib/fx";
 import { site } from "@/content";
 
 function Scramble({ text, on, className }: { text: string; on: boolean; className?: string }) {
@@ -134,7 +134,7 @@ export default function About() {
               <div className="notch relative aspect-[4/5] overflow-hidden">
                 <div className="ab-reveal absolute inset-0 overflow-hidden bg-mist">
                   <Image
-                    src="/images/portrait.jpg"
+                    src={withBase("/images/portrait.jpg")}
                     alt={site.name}
                     fill
                     sizes="(max-width: 768px) 84vw, 40vw"
@@ -155,7 +155,7 @@ export default function About() {
                   {/* B&W eye-line strip: the square photo is top-aligned in this 16:10 box, which puts the eyes
                       (photo y≈27%) at 44% of the box; zooming 4× about that point centres them */}
                   <Image
-                    src="/images/portrait-bw.jpg"
+                    src={withBase("/images/portrait-bw.jpg")}
                     alt=""
                     fill
                     sizes="(max-width: 768px) 100vw, 55vw" // shown at 4× zoom, so request a larger file

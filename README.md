@@ -44,10 +44,14 @@ npm run test:visual -- http://localhost:3000   # Playwright smoke test (uses ins
 ## Deploy
 
 The site is a static export (`output: "export"` in `next.config.ts`), so any static host works — no Node server.
-On **Render**, create a *Static Site* with:
 
-- Build command: `npm install && npm run build`
-- Publish directory: `build`
+**GitHub Pages** (live at [manthanvs.github.io/webportfolio](https://manthanvs.github.io/webportfolio/)):
+[`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) builds and deploys on every push to `main`.
+One-time setup: *Settings → Pages → Build and deployment → Source: **GitHub Actions***. The workflow sets
+`NEXT_PUBLIC_BASE_PATH` to the repo path (`/webportfolio`), which `next.config.ts` uses as `basePath`.
+
+**Any host at a domain root** (e.g. a Render *Static Site*): build command `npm install && npm run build`,
+publish directory `build`, no base path needed.
 
 ## Editing content
 

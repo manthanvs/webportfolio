@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { gsap, scrollTo, useMagnetic, reducedMotion } from "@/lib/fx";
+import { gsap, scrollTo, useMagnetic, reducedMotion, withBase } from "@/lib/fx";
 import { site } from "@/content";
 
 function useClock() {
@@ -53,7 +53,7 @@ export default function Footer() {
       <div className="footer-inner mx-auto w-full max-w-[1400px] px-5 pb-8 pt-36 md:px-10 md:pt-52">
         <div className="flex items-center gap-5">
           <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-mist md:h-24 md:w-24">
-            <Image src="/images/portrait.jpg" alt="" fill sizes="96px" className="scale-150 object-cover object-[50%_25%]" />
+            <Image src={withBase("/images/portrait.jpg")} alt="" fill sizes="96px" className="scale-150 object-cover object-[50%_25%]" />
           </div>
           <h2 className="text-[clamp(44px,8vw,132px)] font-[450] leading-[0.95] tracking-[-0.05em]">
             Let&apos;s build

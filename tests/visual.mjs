@@ -104,6 +104,12 @@ async function run(name, viewport, isMobile) {
   if (links.socials.length < 4 || !links.mail) fail(`[${name}] footer links missing: ${JSON.stringify(links)}`);
   if (!links.work) fail(`[${name}] project links missing`);
 
+  // every image actually loaded (catches a missing base path when served from a subfolder)
+  const broken = await page.evaluate(() =>
+    [...document.images].filter((i) => !(i.complete && i.naturalWidth > 0)).map((i) => i.getAttribute("src")),
+  );
+  if (broken.length) fail(`[${name}] images failed to load: ${broken.join(", ")}`);
+
   // menu opens / closes and navigates
   await page.evaluate(() => window.scrollTo(0, 1400));
   await page.waitForTimeout(900);

@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { gsap, reducedMotion } from "@/lib/fx";
+import { gsap, reducedMotion, withBase } from "@/lib/fx";
 import { projects, type Project } from "@/content";
 
 /** Generated cover used until a real project image is supplied. */
 function Cover({ p, i }: { p: Project; i: number }) {
-  if (p.image) return <Image src={p.image} alt={p.title} fill sizes="(max-width:768px) 100vw, 420px" className="object-cover" />;
+  if (p.image) return <Image src={withBase(p.image)} alt={p.title} fill sizes="(max-width:768px) 100vw, 420px" className="object-cover" />;
   return (
     <div
       className="absolute inset-0"

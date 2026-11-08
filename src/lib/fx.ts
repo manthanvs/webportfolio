@@ -21,6 +21,9 @@ export function scrollTo(target: string | number) {
   else window.scrollTo({ top: target, behavior: "smooth" });
 }
 
+/** Prefix a /public path with the deploy base path ("/webportfolio" on GitHub Pages) — next/image doesn't do it. */
+export const withBase = (path: string) => `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
+
 export const reducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

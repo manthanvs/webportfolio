@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { gsap, scroller, reducedMotion, useIsoLayoutEffect } from "@/lib/fx";
+import { gsap, scroller, reducedMotion, useIsoLayoutEffect, withBase } from "@/lib/fx";
 import { site } from "@/content";
 
 /** Infinite marquee; speed follows scroll velocity, direction flips with scroll direction, pauses off-screen. */
@@ -170,7 +170,7 @@ export default function Hero({ play }: { play: boolean }) {
           {/* square box = the photo's aspect ratio, so the edge mask lands on the photo's edges */}
           <div data-hero-portrait className="hero-in-portrait relative aspect-square w-[140vw] shrink-0 md:h-[94%] md:w-auto">
             <Image
-              src="/images/portrait-bw.jpg"
+              src={withBase("/images/portrait-bw.jpg")}
               alt={`Portrait of ${site.name}`}
               fill
               priority
