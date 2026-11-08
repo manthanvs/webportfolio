@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { gsap, scroller, reducedMotion, useIsoLayoutEffect, withBase } from "@/lib/fx";
+import { gsap, lateStart, scroller, reducedMotion, useIsoLayoutEffect, withBase } from "@/lib/fx";
 import { site } from "@/content";
 
 /** Infinite marquee; speed follows scroll velocity, direction flips with scroll direction, pauses off-screen. */
@@ -74,7 +74,7 @@ export default function Hero({ play }: { play: boolean }) {
 
   // hidden start state, applied before first paint (the preloader covers the SSR frame)
   useIsoLayoutEffect(() => {
-    if (reducedMotion()) return;
+    if (reducedMotion() || lateStart) return;
     const ctx = gsap.context(() => {
       gsap.set(".hero-in-row", { yPercent: 115 });
       gsap.set(".hero-in-portrait", { scale: 1.16, yPercent: 6, transformOrigin: "50% 100%" });
@@ -85,7 +85,7 @@ export default function Hero({ play }: { play: boolean }) {
 
   // entrance — starts the moment the preloader splits open
   useEffect(() => {
-    if (!play || reducedMotion()) return;
+    if (!play || reducedMotion() || lateStart) return;
     const ctx = gsap.context(() => {
       gsap
         .timeline()
@@ -150,16 +150,18 @@ export default function Hero({ play }: { play: boolean }) {
 
   return (
     // ink-2 surround (not ink) so the near-black card still reads as a shape when it shrinks on scroll
-    <section id="top" data-theme="dark" ref={root} className="relative h-[100svh] min-h-[620px] overflow-hidden bg-ink-2 text-white">
+    // Sized from both screen dimensions (svh as well as vw), so the name rows and the face all fit on any shape of screen:
+    // upright, the photo stops short of the top name row; sideways, it fits the height.
+    <section id="top" data-theme="dark" ref={root} className="relative h-[100svh] min-h-[240px] overflow-hidden bg-ink-2 text-white">
       <div className="hero-card absolute inset-0 overflow-hidden" style={{ background: BACKDROP }}>
         {/* row A — behind the portrait */}
-        <div className="hero-depth-a absolute inset-x-0 top-[17%] md:top-[12%]">
+        <div className="hero-depth-a absolute inset-x-0 top-[max(84px,17%)] md:top-[max(72px,12%)]">
           <div className="overflow-hidden pb-[0.04em]">
             <div className="hero-in-row">
               <Marquee
                 text={site.firstName}
                 dir={-1}
-                className="text-[26vw] font-[700] leading-none tracking-[-0.055em] text-white/90 md:text-[19vw]"
+                className="text-[min(26vw,30svh)] font-[700] leading-none tracking-[-0.055em] text-white/90 md:text-[min(19vw,34svh)]"
               />
             </div>
           </div>
@@ -168,7 +170,7 @@ export default function Hero({ play }: { play: boolean }) {
         {/* portrait — flex-centred (no CSS translate for GSAP to fight with) */}
         <div className="hero-depth-p absolute inset-0 flex items-end justify-center">
           {/* square box = the photo's aspect ratio, so the edge mask lands on the photo's edges */}
-          <div data-hero-portrait className="hero-in-portrait relative aspect-square w-[140vw] shrink-0 md:h-[94%] md:w-auto">
+          <div data-hero-portrait className="hero-in-portrait relative aspect-square w-[min(140vw,72svh)] shrink-0 landscape:h-[94%] landscape:w-auto">
             <Image
               src={withBase("/images/portrait-bw.jpg")}
               alt={`Portrait of ${site.name}`}
@@ -182,13 +184,13 @@ export default function Hero({ play }: { play: boolean }) {
         </div>
 
         {/* row B — crosses in front of the portrait, opposite direction */}
-        <div className="hero-depth-b absolute inset-x-0 bottom-[6%] md:bottom-[2%]">
+        <div className="hero-depth-b absolute inset-x-0 bottom-[max(64px,6%)] md:bottom-[2%]">
           <div className="overflow-hidden pb-[0.06em]">
             <div className="hero-in-row">
               <Marquee
                 text={site.name.split(" ").slice(1).join(" ")}
                 dir={1}
-                className="text-[26vw] font-[200] leading-none tracking-[-0.05em] md:text-[19vw]"
+                className="text-[min(26vw,30svh)] font-[200] leading-none tracking-[-0.05em] md:text-[min(19vw,34svh)]"
               />
             </div>
           </div>
@@ -198,7 +200,8 @@ export default function Hero({ play }: { play: boolean }) {
 
         {/* HUD */}
         <div className="hero-hud-wrap pointer-events-none absolute inset-0">
-          <div className="absolute inset-y-0 left-10 hidden items-center md:flex">
+          {/* live cursor readout: means nothing without a cursor */}
+          <div className="absolute inset-y-0 left-10 hidden items-center desk:flex">
             <div className="hero-in-hud space-y-1 text-white/80">
               <p className="hud">◎ Cursor</p>
               <p className="hud tabular-nums">
@@ -209,7 +212,8 @@ export default function Hero({ play }: { play: boolean }) {
               </p>
             </div>
           </div>
-          <div className="absolute right-10 top-[38%] hidden md:block">
+          {/* no room between the name rows on a phone held sideways */}
+          <div className="absolute right-10 top-[38%] hidden md:block md:[@media(max-height:499px)]:hidden">
             <div className="hero-in-hud text-right">
               <svg width="18" height="18" viewBox="0 0 18 18" className="mb-6 ml-auto" aria-hidden>
                 <path d="M1 1l16 16M17 4v13H4" fill="none" stroke="currentColor" strokeWidth="1.3" />
@@ -221,7 +225,7 @@ export default function Hero({ play }: { play: boolean }) {
               </p>
             </div>
           </div>
-          <div className="absolute bottom-10 left-5 md:bottom-8 md:left-10">
+          <div className="absolute bottom-10 left-5 md:bottom-8 md:left-10 md:[@media(max-height:499px)]:hidden">
             <div className="hero-in-hud flex items-center gap-3 text-white/80">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-60" />

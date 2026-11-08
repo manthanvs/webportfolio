@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "npx --yes serve@14.2.4 build",
     "lint": "eslint",
-    "test:visual": "node tests/visual.mjs"
+    "test:visual": "node tests/visual.mjs",
+    "test:devices": "node tests/devices.mjs"
   },
   "dependencies": {
     "framer-motion": "^14.10.1",

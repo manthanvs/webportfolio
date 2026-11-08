@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Lenis from "lenis";
-import { gsap, ScrollTrigger, scroller, reducedMotion } from "@/lib/fx";
+import { gsap, ScrollTrigger, scroller, reducedMotion, useTouchCursor } from "@/lib/fx";
 import Preloader from "./Preloader";
 import Header from "./Header";
 import Hero from "./Hero";
@@ -18,6 +18,7 @@ export default function Site() {
   const [phase, setPhase] = useState<Phase>("loading");
   const onReveal = useCallback(() => setPhase("reveal"), []);
   const onDone = useCallback(() => setPhase("done"), []);
+  useTouchCursor();
 
   useEffect(() => {
     history.scrollRestoration = "manual";

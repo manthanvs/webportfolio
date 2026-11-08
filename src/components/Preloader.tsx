@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { gsap, reducedMotion, withBase } from "@/lib/fx";
+import { gsap, lateStart, reducedMotion, withBase } from "@/lib/fx";
 import { site } from "@/content";
 
+// All measured from when the visitor opened the page, not from when the scripts arrived.
 const MIN_MS = 1200; // never flash past — show at least this long
 const FAILSAFE_MS = 7000; // reveal even if an asset hangs
+const QUICK_EXIT_MS = 5000; // they've waited long enough: a short fade instead of the full split
 
 /** Resolves once fonts and the hero portrait are ready to paint. */
 function assetsReady(): Promise<void> {
@@ -53,18 +55,27 @@ export default function Preloader({ onReveal, onDone }: { onReveal: () => void; 
     let shown = 0;
     let raf = 0;
     let tl: gsap.core.Timeline | null = null;
-    const start = performance.now();
-    let last = start;
-    assetsReady().then(() => (ready = true));
-    const failsafe = setTimeout(() => (ready = true), FAILSAFE_MS);
+    let last = performance.now();
 
     const finish = () => {
       setGone(true);
       onDone();
     };
 
+    if (lateStart) {
+      raf = requestAnimationFrame(() => {
+        onReveal();
+        finish();
+      });
+      return () => cancelAnimationFrame(raf);
+    }
+
+    el.style.animation = "none"; // the script is here: .pl-giveup can stand down
+    assetsReady().then(() => (ready = true));
+    const failsafe = setTimeout(() => (ready = true), Math.max(0, FAILSAFE_MS - last));
+
     const exit = () => {
-      if (reducedMotion()) {
+      if (reducedMotion() || performance.now() > QUICK_EXIT_MS) {
         onReveal();
         tl = gsap.timeline({ onComplete: finish }).to(el, { autoAlpha: 0, duration: 0.4 });
         return;
@@ -90,11 +101,10 @@ export default function Preloader({ onReveal, onDone }: { onReveal: () => void; 
     const tick = (now: number) => {
       const dt = now - last;
       last = now;
-      const elapsed = now - start;
       // creep towards 90% while waiting, run to 100% once assets are in
-      const target = ready ? 100 : Math.min(90, (elapsed / MIN_MS) * 90);
+      const target = ready ? 100 : Math.min(90, (now / MIN_MS) * 90);
       shown += (target - shown) * (1 - Math.pow(0.9, dt / 16.7));
-      if (ready && elapsed >= MIN_MS && shown > 99.4) shown = 100;
+      if (ready && now >= MIN_MS && shown > 99.4) shown = 100;
       if (fill.current) fill.current.style.transform = `scaleX(${shown / 100})`;
       if (count.current) count.current.textContent = String(Math.floor(shown)).padStart(3, "0");
       if (file.current) file.current.textContent = lastResource();
@@ -113,7 +123,7 @@ export default function Preloader({ onReveal, onDone }: { onReveal: () => void; 
   if (gone) return null;
 
   return (
-    <div ref={root} data-preloader className="fixed inset-0 z-[100] text-bone" aria-hidden>
+    <div ref={root} data-preloader className="pl-giveup fixed inset-0 z-[100] text-bone" aria-hidden>
       <div className="pl-left absolute inset-y-0 left-0 w-[calc(50%+1px)] bg-ink" />
       <div className="pl-right absolute inset-y-0 right-0 w-[calc(50%+1px)] bg-ink" />
 

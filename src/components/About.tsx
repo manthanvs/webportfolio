@@ -24,19 +24,25 @@ const FILE = [
 export default function About() {
   const root = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
+  const [photoInView, setPhotoInView] = useState(false);
 
   useEffect(() => {
     const el = root.current;
     if (!el) return;
+    // Stacked (narrow): the collage sits a full screen below the heading, so it gets its own cues.
+    const stacked = window.innerWidth < 768;
+    const photo = stacked ? ".ab-collage" : el;
     const ctx = gsap.context(() => {
       ScrollTrigger.create({ trigger: el, start: "top 70%", once: true, onEnter: () => setInView(true) });
+      ScrollTrigger.create({ trigger: photo, start: "top 70%", once: true, onEnter: () => setPhotoInView(true) });
       if (reducedMotion()) return;
 
       // one-shot entrance
-      gsap
+      const heading = gsap
         .timeline({ scrollTrigger: { trigger: el, start: "top 70%" } })
         .from(".ab-rule", { scaleX: 0, duration: 1.2, ease: "expo.inOut" }, 0)
-        .from(".ab-title-in", { yPercent: 110, duration: 1.3, ease: "expo.out", stagger: 0.1 }, 0.15)
+        .from(".ab-title-in", { yPercent: 110, duration: 1.3, ease: "expo.out", stagger: 0.1 }, 0.15);
+      (stacked ? gsap.timeline({ scrollTrigger: { trigger: photo, start: "top 70%" } }) : heading)
         // scanner: the portrait opens from a centre line, two signal edges travel out with it
         .fromTo(".ab-reveal", { clipPath: "inset(50% 0% 50% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.5, ease: "expo.inOut" }, 0.1)
         .fromTo(".ab-scan-top", { top: "50%" }, { top: "0%", duration: 1.5, ease: "expo.inOut" }, 0.1)
@@ -61,13 +67,15 @@ export default function About() {
           }),
       });
 
-      // scrubbed depth: the further forward a layer sits, the faster it travels
-      const sc = { trigger: el, start: "top bottom", end: "bottom top", scrub: true };
-      gsap.fromTo(".ab-depth-1", { y: 50 }, { y: -50, ease: "none", scrollTrigger: sc });
-      gsap.fromTo(".ab-img", { yPercent: -7 }, { yPercent: 7, ease: "none", scrollTrigger: sc });
-      gsap.fromTo(".ab-depth-2", { y: 140 }, { y: -140, ease: "none", scrollTrigger: sc });
-      gsap.fromTo(".ab-depth-3", { y: 200 }, { y: -160, ease: "none", scrollTrigger: sc });
-      gsap.fromTo(".ab-cross", { rotate: -45, y: 80 }, { rotate: 135, y: -80, ease: "none", scrollTrigger: sc });
+      // scrubbed depth: the further forward a layer sits, the faster it travels. Distances follow the screen.
+      // Stacked, they're centred on the collage: when it sits mid-screen, every layer is where the layout puts it.
+      const sc = { trigger: photo, start: "top bottom", end: "bottom top", scrub: true };
+      const k = gsap.utils.clamp(0.35, 1, window.innerWidth / 1200);
+      gsap.fromTo(".ab-depth-1", { y: 50 * k }, { y: -50 * k, ease: "none", scrollTrigger: sc });
+      gsap.fromTo(".ab-img", { yPercent: stacked ? -6 : -7 }, { yPercent: stacked ? 6 : 7, ease: "none", scrollTrigger: sc });
+      gsap.fromTo(".ab-depth-2", { y: 140 * k }, { y: -140 * k, ease: "none", scrollTrigger: sc });
+      gsap.fromTo(".ab-depth-3", { y: 200 * k }, { y: -160 * k, ease: "none", scrollTrigger: sc });
+      gsap.fromTo(".ab-cross", { rotate: -45, y: 80 * k }, { rotate: 135, y: -80 * k, ease: "none", scrollTrigger: sc });
       gsap.fromTo(".ab-line-1", { xPercent: -4 }, { xPercent: 4, ease: "none", scrollTrigger: sc });
       gsap.fromTo(".ab-line-2", { xPercent: 6 }, { xPercent: -6, ease: "none", scrollTrigger: sc });
     }, root);
@@ -88,7 +96,7 @@ export default function About() {
           <div className="md:order-2 md:col-span-6 md:col-start-7 md:pt-6">
             <h2
               aria-label={`Hi, I'm ${site.firstName}.`}
-              className="text-[clamp(48px,6.4vw,112px)] font-[800] uppercase leading-[0.88] tracking-[-0.045em]"
+              className="text-[clamp(32px,12.2vw,112px)] font-[800] uppercase leading-[0.88] tracking-[-0.045em] md:text-[clamp(48px,6.4vw,112px)]"
             >
               <span className="ab-line-1 block" aria-hidden>
                 <span className="block overflow-hidden pb-[0.05em]">
@@ -119,26 +127,31 @@ export default function About() {
           </div>
 
           {/* layered collage */}
-          <div className="relative pb-10 md:order-1 md:col-span-6 md:pb-0">
+          {/* self-start: the floating layers are placed against the photo, however tall the text beside it runs */}
+          <div className="ab-collage relative pb-10 md:order-1 md:col-span-6 md:self-start md:pb-0">
             <svg
               viewBox="0 0 100 100"
-              className="ab-cross pointer-events-none absolute -left-2 top-[40%] z-10 h-20 w-20 text-signal md:-left-10 md:h-28 md:w-28"
+              // stacked, the face fills the frame's left side, so the mark sits lower, on the shoulder
+              className="ab-cross pointer-events-none absolute -left-2 top-[72%] z-10 h-20 w-20 text-signal max-[359px]:hidden md:-left-10 md:top-[40%] md:h-28 md:w-28"
               aria-hidden
             >
               <circle cx="50" cy="50" r="18" fill="none" stroke="currentColor" strokeWidth="1.2" />
               <path d="M50 4v30M50 66v30M4 50h30M66 50h30" stroke="currentColor" strokeWidth="1.2" />
             </svg>
 
-            <div className="ab-depth-1 relative w-[84%]">
-              {/* 1.18 scale leaves headroom for the ±7% parallax */}
-              <div className="notch relative aspect-[4/5] overflow-hidden">
+            {/* golden rectangle when stacked (1 : 1.618, never taller than 82% of the screen); 4:5 beside the text */}
+            <div className="ab-depth-1 relative w-[min(84%,50.7svh)] md:w-[84%]">
+              {/* 1.18 scale leaves headroom for the parallax. Eyes sit on the golden point of the frame, 38.2% across
+                  and 38.2% down, which leaves the right side free for the layers floating over it: the point between
+                  the eyes is at (42.7%, 40.9%) of the photo, and object-position + origin place it. */}
+              <div className="notch relative aspect-[1/1.618] overflow-hidden md:aspect-[4/5]">
                 <div className="ab-reveal absolute inset-0 overflow-hidden bg-mist">
                   <Image
                     src={withBase("/images/portrait.jpg")}
                     alt={site.name}
                     fill
                     sizes="(max-width: 768px) 84vw, 40vw"
-                    className="ab-img scale-[1.18] object-cover object-[50%_30%]"
+                    className="ab-img origin-[50%_55.9%] scale-[1.18] object-cover object-[46.7%_30%] md:object-[51.8%_30%]"
                   />
                 </div>
                 <span className="ab-scan-top pointer-events-none absolute inset-x-0 top-1/2 h-px bg-signal" />
@@ -147,9 +160,9 @@ export default function About() {
               <p className="hud mt-3 text-ink/50">Fig. 01</p>
             </div>
 
-            <div className="ab-depth-2 absolute right-0 top-[6%] w-[36%]">
+            <div className="ab-depth-2 absolute right-0 top-[6%] w-[max(36%,104px)]">
               {/* bone tab keeps the label legible whether it floats over the dark photo or the page */}
-              <p className="hud mb-1 inline-block bg-bone px-2 py-1 text-ink/60">Detail — 01</p>
+              <p className="hud mb-1 inline-block whitespace-nowrap bg-bone px-2 py-1 text-ink/60">Detail — 01</p>
               <div className="notch-sm relative aspect-[16/10] overflow-hidden">
                 <div className="ab-frag absolute inset-0 overflow-hidden bg-ink">
                   {/* B&W eye-line strip: the square photo is top-aligned in this 16:10 box, which puts the eyes
@@ -166,7 +179,7 @@ export default function About() {
               </div>
             </div>
 
-            <div className="ab-depth-3 absolute -bottom-4 right-[3%] w-[64%] md:-bottom-16 md:w-[54%]">
+            <div className="ab-depth-3 absolute -bottom-4 right-[3%] w-[min(100%,max(64%,250px))] md:-bottom-16 md:w-[54%]">
               <div data-theme="dark" className="ab-card notch-sm bg-ink px-5 pb-5 pt-6 text-bone md:px-6 md:pb-6 md:pt-7">
                 <p className="hud text-signal-soft">{"// File 03 — Profile"}</p>
                 <dl className="mt-4 space-y-2">
@@ -175,7 +188,7 @@ export default function About() {
                       <dt className="text-bone/45">{k}</dt>
                       <span className="mb-[3px] flex-1 border-b border-dotted border-bone/20" />
                       <dd className="text-right">
-                        <Scramble text={v} on={inView} />
+                        <Scramble text={v} on={photoInView} />
                       </dd>
                     </div>
                   ))}

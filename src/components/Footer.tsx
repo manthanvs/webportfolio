@@ -44,6 +44,17 @@ export default function Footer() {
 
   const socials = site.socials.filter((s) => s.href);
 
+  // Clipboard only exists over https/localhost, so never claim "Copied" without it; open the mail app instead.
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(site.email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      window.location.href = `mailto:${site.email}`;
+    }
+  };
+
   return (
     <footer
       id="contact"
@@ -58,15 +69,15 @@ export default function Footer() {
       </div>
 
       <div className="footer-inner mx-auto w-full max-w-[1400px] px-5 pb-8 pt-36 md:px-10 md:pt-52">
-        <div className="flex items-center gap-5">
-          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-mist md:h-24 md:w-24">
+        <div className="flex items-center gap-3 min-[360px]:gap-5">
+          <div className="relative size-[clamp(48px,16vw,64px)] shrink-0 overflow-hidden rounded-full bg-mist md:size-24">
             <Image src={withBase("/images/portrait.jpg")} alt="" fill sizes="96px" className="scale-150 object-cover object-[50%_25%]" />
           </div>
-          <h2 className="text-[clamp(44px,8vw,132px)] font-[450] leading-[0.95] tracking-[-0.05em]">
+          <h2 className="text-[clamp(34px,12vw,44px)] font-[450] leading-[0.95] tracking-[-0.05em] md:text-[clamp(44px,8vw,132px)]">
             Let&apos;s build
           </h2>
         </div>
-        <h2 className="text-[clamp(44px,8vw,132px)] font-[200] leading-[0.95] tracking-[-0.05em]">
+        <h2 className="text-[clamp(34px,12vw,44px)] font-[200] leading-[0.95] tracking-[-0.05em] md:text-[clamp(44px,8vw,132px)]">
           something together
         </h2>
 
@@ -76,22 +87,19 @@ export default function Footer() {
             ref={cta}
             href={site.email ? `mailto:${site.email}` : "#contact"}
             onClick={(e) => !site.email && e.preventDefault()}
+            data-focus="zone"
             className="group absolute right-[4%] top-0 -mt-16 grid h-32 w-32 place-items-center overflow-hidden rounded-full bg-signal text-bone md:right-[6%] md:-mt-26 md:h-52 md:w-52"
           >
-            <span className="absolute inset-0 translate-y-full rounded-full bg-bone transition-transform duration-700 ease-out-expo group-hover:translate-y-0" />
-            <span className="relative text-[17px] transition-colors duration-500 group-hover:text-ink">Get in touch</span>
+            <span className="absolute inset-0 translate-y-full rounded-full bg-bone transition-transform duration-700 ease-out-expo group-on:translate-y-0" />
+            <span className="relative text-[17px] transition-colors duration-500 group-on:text-ink">Get in touch</span>
           </a>
         </div>
 
         <div className="mt-28 flex flex-wrap gap-3 md:mt-20">
           {site.email ? (
             <button
-              onClick={() => {
-                navigator.clipboard?.writeText(site.email);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 1600);
-              }}
-              className="rounded-full border border-bone/20 px-7 py-5 text-[15px] transition-colors hover:border-bone hover:bg-bone hover:text-ink"
+              onClick={copyEmail}
+              className="rounded-full border border-bone/20 px-[clamp(16px,6vw,28px)] py-5 text-[clamp(13px,4.6vw,15px)] transition-colors on:border-bone on:bg-bone on:text-ink"
             >
               {copied ? "Copied ✓" : site.email}
             </button>
@@ -119,12 +127,13 @@ export default function Footer() {
             <p className="hud mb-2 text-bone/40">Your local time</p>
             <p className="text-[14px] tabular-nums">{time}</p>
           </div>
-          <div>
+          <div className="col-span-2 min-[360px]:col-span-1">
             <p className="hud mb-2 text-bone/40">Socials</p>
-            <div className="flex flex-wrap gap-4 text-[14px]">
+            {/* roomy tap height on touch, same look at rest */}
+            <div className="flex flex-wrap gap-x-4 text-[14px] touch:-my-1 desk:gap-y-4">
               {socials.length ? (
                 socials.map((s) => (
-                  <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="hover:text-signal-soft">
+                  <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="transition-colors on:text-signal-soft touch:flex touch:h-11 touch:items-center">
                     {s.label}
                   </a>
                 ))
@@ -133,11 +142,11 @@ export default function Footer() {
               )}
             </div>
           </div>
-          <div className="flex items-end justify-start md:justify-end">
+          <div className="col-span-2 flex items-end justify-start min-[360px]:col-span-1 md:justify-end">
             <button
               ref={top}
               onClick={() => scrollTo(0)}
-              className="hud rounded-full border border-bone/20 px-5 py-3 transition-colors hover:border-signal-soft hover:text-signal-soft"
+              className="hud whitespace-nowrap rounded-full border border-bone/20 px-5 py-3 transition-colors on:border-signal-soft on:text-signal-soft touch:py-4"
             >
               Back to top ↑
             </button>

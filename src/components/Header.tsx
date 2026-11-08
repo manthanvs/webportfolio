@@ -27,10 +27,10 @@ function NavLink({ label, href, onNavigate }: { label: string; href: string; onN
         onNavigate?.();
         scrollTo(href);
       }}
-      className="group relative inline-block px-3 py-2"
+      className="group relative inline-block px-3 py-2 touch:py-3.5"
     >
       <span className="hud !text-[12px]">{text}</span>
-      <span className="absolute bottom-0 left-1/2 h-1 w-1 -translate-x-1/2 scale-0 rounded-full bg-current transition-transform duration-300 group-hover:scale-100" />
+      <span className="absolute bottom-0 left-1/2 h-1 w-1 -translate-x-1/2 scale-0 rounded-full bg-current transition-transform duration-300 group-on:scale-100" />
     </a>
   );
 }
@@ -39,11 +39,18 @@ export default function Header({ visible }: { visible: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [light, setLight] = useState(false); // true when the header sits over a bone section
   const [open, setOpen] = useState(false);
+  const [away, setAway] = useState(false); // touch: the name steps aside while scrolling down, so it never sits on the text
   const menuBtn = useMagnetic<HTMLButtonElement>(0.3);
 
   useEffect(() => {
+    let last = window.scrollY;
     const onScroll = () => {
-      setScrolled(window.scrollY > 140);
+      const y = window.scrollY;
+      setScrolled(y > 140);
+      if (Math.abs(y - last) > 6) {
+        setAway(y > last && y > 140);
+        last = y;
+      }
       // sample under the name (left), where legibility matters — skipping the header's own (clickable) name link;
       // dark images inside light sections declare data-theme="dark"
       const under = document
@@ -68,9 +75,9 @@ export default function Header({ visible }: { visible: boolean }) {
   return (
     <>
       <header
-        className={`pointer-events-none fixed inset-x-0 top-0 z-50 transition-[color,opacity,translate] duration-700 ease-out-expo ${
+        className={`pointer-events-none fixed inset-x-0 top-0 z-50 transition-[color,opacity,translate,visibility] duration-700 ease-out-expo ${
           light ? "text-ink" : "text-white"
-        } ${visible ? "opacity-100" : "-translate-y-3 opacity-0"}`}
+        } ${visible ? "opacity-100" : "-translate-y-3 opacity-0"} ${away ? "touch:invisible touch:-translate-y-3 touch:opacity-0" : ""}`}
       >
         <div className="flex items-center justify-between px-5 py-5 md:px-10 md:py-7">
           <a
@@ -79,7 +86,7 @@ export default function Header({ visible }: { visible: boolean }) {
               e.preventDefault();
               scrollTo(0);
             }}
-            className="group pointer-events-auto flex items-center gap-2.5 text-[15px]"
+            className="group pointer-events-auto -my-2 flex items-center gap-2.5 py-2 text-[15px]"
           >
             {/* transparent MS mark at its native 99×96 ratio; over dark sections a soft purple glow
                 lifts the dark metal M off the background */}
@@ -88,7 +95,7 @@ export default function Header({ visible }: { visible: boolean }) {
               alt=""
               width={99}
               height={96}
-              className="h-[30px] w-auto shrink-0 transition-[scale,filter] duration-500 ease-out-expo group-hover:scale-110"
+              className="h-[30px] w-auto shrink-0 transition-[scale,filter] duration-500 ease-out-expo group-on:scale-110"
               style={{ filter: light ? "none" : "brightness(1.6) drop-shadow(0 0 6px color-mix(in srgb, var(--color-signal-soft) 65%, transparent))" }}
             />
             <span className="overflow-hidden">
@@ -120,7 +127,7 @@ export default function Header({ visible }: { visible: boolean }) {
           onClick={() => setOpen((o) => !o)}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
-          className={`grid h-14 w-14 place-items-center rounded-full border border-white/10 transition-colors duration-300 md:h-[72px] md:w-[72px] ${
+          className={`grid h-14 w-14 place-items-center rounded-full border border-white/10 transition-[background-color,color,scale] duration-300 data-press:scale-90 md:h-[72px] md:w-[72px] ${
             open ? "bg-signal text-bone" : "bg-ink text-bone"
           }`}
         >
@@ -148,7 +155,9 @@ export default function Header({ visible }: { visible: boolean }) {
             />
             <motion.aside
               key="menu"
-              className="fixed inset-y-0 right-0 z-[65] flex w-full flex-col justify-between bg-ink-2 px-8 pb-10 pt-28 text-bone sm:w-[460px] md:px-14"
+              // short screens (a phone held sideways) scroll inside the panel, so every link stays reachable
+              data-lenis-prevent
+              className="fixed inset-y-0 right-0 z-[65] flex w-full flex-col justify-between gap-8 overflow-y-auto overscroll-contain bg-ink-2 px-8 pb-10 pt-[clamp(72px,13svh,112px)] text-bone sm:w-[460px] md:px-14"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
@@ -180,10 +189,10 @@ export default function Header({ visible }: { visible: boolean }) {
                           setOpen(false);
                           setTimeout(() => scrollTo(l.href === "#top" ? 0 : l.href), 350);
                         }}
-                        className="group relative flex items-center text-[clamp(44px,9vw,64px)] leading-[1.1] tracking-[-0.03em]"
+                        className="group relative flex items-center text-[clamp(34px,min(11.5vw,10svh),64px)] leading-[1.1] tracking-[-0.03em]"
                       >
-                        <span className="absolute -left-5 h-2 w-2 scale-0 rounded-full bg-signal transition-transform duration-300 group-hover:scale-100" />
-                        <span className="transition-transform duration-500 ease-out-expo group-hover:translate-x-2">{l.label}</span>
+                        <span className="absolute -left-5 h-2 w-2 scale-0 rounded-full bg-signal transition-transform duration-300 group-on:scale-100" />
+                        <span className="transition-transform duration-500 ease-out-expo group-on:translate-x-2">{l.label}</span>
                       </a>
                     </motion.li>
                   ))}
@@ -191,12 +200,12 @@ export default function Header({ visible }: { visible: boolean }) {
               </div>
               <div className="relative">
                 <p className="hud mb-3 text-bone/50">Socials</p>
-                <div className="flex flex-wrap gap-6 text-[15px]">
+                <div className="flex flex-wrap gap-x-6 text-[15px] touch:-my-1 desk:gap-y-6">
                   {site.socials.filter((s) => s.href).length ? (
                     site.socials
                       .filter((s) => s.href)
                       .map((s) => (
-                        <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="hover:text-signal-soft">
+                        <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="transition-colors on:text-signal-soft touch:flex touch:h-11 touch:items-center">
                           {s.label}
                         </a>
                       ))

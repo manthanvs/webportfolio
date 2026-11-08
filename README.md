@@ -23,9 +23,12 @@ no code, assets or branding were copied from either site.
   open onto the hero.
 - **Hero** — black-and-white portrait between two name marquees whose speed follows scroll velocity; on desktop it
   pins while the content sheet slides over it and the frame shrinks into a notched card.
-- **Selected work** — project index with a cursor-following preview that tilts with pointer velocity.
+- **Selected work** — project index with a cursor-following preview that tilts with pointer velocity. On touch, the
+  row crossing the middle of the screen scans open with its cover, and a tap opens the project.
 - **About** — a layered "dossier": portrait, detail crop and profile card at three parallax depths, a scanner-style
   reveal and line-by-line masked copy.
+- **Touch** — phones can't hover, so the middle of the screen plays the cursor: whatever crosses it gets the hovered
+  look, and pressing plays it at once. Sizes follow both screen dimensions, tested from 280 to 2560 dp.
 - **Details** — magnetic buttons, scramble-text navigation, a header that adapts to light and dark sections, and
   full `prefers-reduced-motion` support.
 
@@ -39,6 +42,7 @@ npm run dev            # http://localhost:3000
 npm run build          # static export → build/
 npm start              # serves build/ at http://localhost:3000
 npm run test:visual -- http://localhost:3000   # Playwright smoke test (uses installed Chrome), screenshots → tests/shots
+npm run test:devices -- http://localhost:3000  # effects, layout and taps across 28 screen sizes and densities
 ```
 
 ## Deploy

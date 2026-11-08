@@ -15,8 +15,43 @@
   --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
+/* A real cursor on a wide screen, or not. Same query as DESK in lib/fx.ts. */
+@custom-variant desk (@media (min-width: 768px) and (hover: hover) and (pointer: fine));
+@custom-variant touch (@media not all and (min-width: 768px) and (hover: hover) and (pointer: fine));
+
+/* "Hovered", on any device: a real hover, a finger on it, or crossing the middle of a touch screen
+   (useTouchCursor in lib/fx.ts sets data-press and data-on). */
+@custom-variant on {
+  @media (hover: hover) {
+    &:hover {
+      @slot;
+    }
+  }
+  &[data-press],
+  &[data-on],
+  &:focus-visible {
+    @slot;
+  }
+}
+@custom-variant group-on {
+  @media (hover: hover) {
+    .group:hover & {
+      @slot;
+    }
+  }
+  .group[data-press] &,
+  .group[data-on] &,
+  .group:focus-visible & {
+    @slot;
+  }
+}
+
 html {
   background: var(--color-ink);
+}
+a,
+button {
+  -webkit-tap-highlight-color: transparent; /* the on: variants are the tap feedback */
 }
 body {
   background: var(--color-bone);
@@ -73,6 +108,30 @@ html.lenis body {
     opacity: 0;
     transform: scale(0.94);
     filter: blur(8px);
+  }
+}
+
+/* Slow or failed scripts: the loader leaves by itself, because the page under it is already readable.
+   Preloader.tsx cancels this as soon as its script takes over. Delay matches GIVE_UP_MS in lib/fx.ts. */
+.pl-giveup {
+  animation: pl-giveup 0.6s 8s forwards;
+}
+@keyframes pl-giveup {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* signal edges of the Work scanner on touch: visible only while they travel */
+@keyframes scan-edge {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  15%,
+  70% {
+    opacity: 1;
   }
 }
 

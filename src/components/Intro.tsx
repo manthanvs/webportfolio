@@ -49,9 +49,10 @@ export default function Intro() {
                 e.preventDefault();
                 scrollTo("#about");
               }}
-              className="group relative grid h-36 w-36 shrink-0 place-items-center overflow-hidden rounded-full bg-ink text-bone md:h-48 md:w-48"
+              data-focus="zone"
+              className="group relative grid size-[clamp(112px,37vw,144px)] shrink-0 place-items-center overflow-hidden rounded-full bg-ink text-bone md:size-48"
             >
-              <span className="absolute inset-0 translate-y-full rounded-full bg-signal transition-transform duration-700 ease-out-expo group-hover:translate-y-0" />
+              <span className="absolute inset-0 translate-y-full rounded-full bg-signal transition-transform duration-700 ease-out-expo group-on:translate-y-0" />
               <span className="relative text-[17px]">About me</span>
             </a>
           </div>

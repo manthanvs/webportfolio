@@ -90,7 +90,8 @@ async function run(name, viewport, isMobile) {
       }));
       if (!about.photos.includes("bw") || !about.photos.includes("colour")) fail(`[${name}] about photos not both loaded: ${about.photos}`);
       if (!about.card.includes("Manthan Sankpal")) fail(`[${name}] about data card did not settle: "${about.card}"`);
-      if (about.clip.includes("50%")) fail(`[${name}] about portrait reveal did not run: ${about.clip}`);
+      // on phones the photo is below the text, so its reveal waits for it (tests/devices.mjs covers that)
+      if (!isMobile && about.clip.includes("50%")) fail(`[${name}] about portrait reveal did not run: ${about.clip}`);
       if (!about.lines) fail(`[${name}] about copy was not line-split`);
     }
   }

@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { gsap, reducedMotion, withBase } from "@/lib/fx";
+import { DESK, gsap, reducedMotion, withBase } from "@/lib/fx";
 import { projects, type Project } from "@/content";
 
-/** Generated cover used until a real project image is supplied. */
-function Cover({ p, i }: { p: Project; i: number }) {
-  if (p.image) return <Image src={withBase(p.image)} alt={p.title} fill sizes="(max-width:768px) 100vw, 420px" className="object-cover" />;
+/** Generated cover used until a real project image is supplied. `bare`: art only, for text laid over it. */
+function Cover({ p, i, bare }: { p: Project; i: number; bare?: boolean }) {
+  if (p.image) return <Image src={withBase(p.image)} alt={bare ? "" : p.title} fill sizes="(max-width:768px) 100vw, 420px" className="object-cover" />;
   return (
     <div
       className="absolute inset-0"
@@ -26,11 +26,32 @@ function Cover({ p, i }: { p: Project; i: number }) {
           backgroundSize: "28px 28px",
         }}
       />
-      <span className="absolute bottom-3 left-4 text-[96px] font-[800] leading-none tracking-[-0.06em] text-white/90">
-        {String(i + 1).padStart(2, "0")}
-      </span>
-      <span className="hud absolute right-4 top-6 text-white/70">{p.title}</span>
+      {!bare && (
+        <>
+          <span className="absolute bottom-3 left-4 text-[96px] font-[800] leading-none tracking-[-0.06em] text-white/90">
+            {String(i + 1).padStart(2, "0")}
+          </span>
+          <span className="hud absolute right-4 top-6 text-white/70">{p.title}</span>
+        </>
+      )}
     </div>
+  );
+}
+
+/** Touch row text. Drawn twice: dark on the page, white inside the scanner, so it changes colour exactly at the moving edge. */
+function RowText({ p, i, className = "" }: { p: Project; i: number; className?: string }) {
+  const move = "transition-transform duration-700 ease-out-expo";
+  return (
+    <span className={`flex flex-col justify-between gap-5 pb-5 pt-7 ${className}`}>
+      <span className="hud flex justify-between">
+        <span className={`${move} group-on:translate-x-4`}>{String(i + 1).padStart(2, "0")}</span>
+        <span className={`${move} group-on:-translate-x-4`}>{p.year}</span>
+      </span>
+      <span className={`block ${move} group-on:translate-x-4`}>
+        <span className="block text-[clamp(24px,min(9.4vw,13svh),64px)] font-[450] leading-none tracking-[-0.045em]">{p.title}</span>
+        <span className="mt-2.5 block pr-[76px] text-[14px] leading-snug">{p.kind}</span>
+      </span>
+    </span>
   );
 }
 
@@ -42,7 +63,7 @@ export default function Work() {
 
   // floating preview + "view" cursor follow the pointer; preview tilts with horizontal velocity
   useEffect(() => {
-    if (!preview.current || !cursor.current || window.matchMedia("(pointer: coarse)").matches) return;
+    if (!preview.current || !cursor.current || !window.matchMedia(DESK).matches) return;
     const pX = gsap.quickTo(preview.current, "x", { duration: 0.8, ease: "power3" });
     const pY = gsap.quickTo(preview.current, "y", { duration: 0.8, ease: "power3" });
     const rot = gsap.quickTo(preview.current, "rotation", { duration: 0.6, ease: "power3" });
@@ -62,15 +83,22 @@ export default function Work() {
   }, []);
 
   useEffect(() => {
+    if (reducedMotion()) return;
+    const desk = window.matchMedia(DESK).matches;
     const ctx = gsap.context(() => {
-      gsap.from(".work-row", {
+      gsap.from(desk ? ".work-row" : ".work-touch-row", {
         opacity: 0,
         y: 40,
         duration: 1.1,
         ease: "expo.out",
         stagger: 0.08,
-        scrollTrigger: { trigger: ".work-list", start: "top 80%" },
+        scrollTrigger: { trigger: desk ? ".work-list" : ".work-touch-list", start: "top 80%" },
       });
+      // depth: each cover's art drifts inside its frame while the page moves
+      if (!desk)
+        gsap.utils.toArray<HTMLElement>(".work-art").forEach((art) =>
+          gsap.fromTo(art, { yPercent: -10 }, { yPercent: 10, ease: "none", scrollTrigger: { trigger: art.parentElement, start: "top bottom", end: "bottom top", scrub: true } }),
+        );
     }, root);
     return () => ctx.revert();
   }, []);
@@ -80,15 +108,16 @@ export default function Work() {
   return (
     <section id="work" ref={root} data-theme="light" className="relative bg-bone px-5 pb-28 md:px-10 md:pb-40">
       <div className="mx-auto max-w-[1400px]">
-        <div className="mb-8 flex items-end justify-between md:mb-12">
+        <div className="mb-4 flex items-end justify-between desk:mb-12">
           <p className="hud text-ink/50">(02) — Selected work</p>
           <p className="hud text-ink/50">
             Index <sup>{String(projects.length).padStart(2, "0")}</sup>
           </p>
         </div>
+        <p className="hud mb-8 text-ink/50 desk:hidden">Scroll to preview · Tap to open</p>
 
-        {/* desktop list */}
-        <ul className="work-list hidden md:block" onPointerLeave={() => setActive(null)}>
+        {/* with a cursor: hover a row, its cover floats along */}
+        <ul className="work-list hidden desk:block" onPointerLeave={() => setActive(null)}>
           <li className="hud grid grid-cols-12 border-b border-ink/15 pb-3 text-ink/40">
             <span className="col-span-1">No.</span>
             <span className="col-span-6">Project</span>
@@ -124,29 +153,46 @@ export default function Work() {
           ))}
         </ul>
 
-        {/* mobile cards */}
-        <ul className="grid gap-12 md:hidden">
+        {/* touch: no hover, so the row crossing the middle of the screen scans open. A tap always opens the link. */}
+        <ul className="work-touch-list border-t border-ink/15 desk:hidden">
           {projects.map((p, i) => (
-            <li key={p.title}>
-              <a href={p.href || "#work"} onClick={(e) => !p.href && e.preventDefault()} className="block">
-                <div className="notch relative aspect-[4/3] overflow-hidden">
-                  <Cover p={p} i={i} />
-                </div>
-                <div className="mt-4 flex items-baseline justify-between border-b border-ink/15 pb-4">
-                  <span className="text-[34px] leading-none tracking-[-0.04em]">{p.title}</span>
-                  <span className="hud text-ink/50">{p.year}</span>
-                </div>
-                <p className="mt-3 text-[14px] text-ink/60">{p.kind}</p>
+            <li key={p.title} className="work-touch-row border-b border-ink/15">
+              <a
+                href={p.href || "#work"}
+                target={p.href ? "_blank" : undefined}
+                rel="noreferrer"
+                onClick={(e) => !p.href && e.preventDefault()}
+                data-focus="line"
+                className="group relative block"
+              >
+                <RowText p={p} i={i} className="min-h-[clamp(148px,24svh,220px)]" />
+                {/* the About portrait's scanner: the cover opens from a centre line, signal edges travel out with it */}
+                <span className="notch absolute inset-0" aria-hidden>
+                  <span className="absolute inset-0 overflow-hidden text-white transition-[clip-path] duration-[600ms] ease-in-out-quart [clip-path:inset(50%_0)] group-on:[clip-path:inset(0)]">
+                    <span className="work-art absolute inset-x-0 -inset-y-[14%] block">
+                      <Cover p={p} i={i} bare />
+                    </span>
+                    <RowText p={p} i={i} className="absolute inset-0" />
+                  </span>
+                </span>
+                <span className="absolute inset-x-0 top-1/2 h-px bg-signal opacity-0 transition-[top] duration-[600ms] ease-in-out-quart group-on:top-0 group-on:animate-[scan-edge_.7s_both]" aria-hidden />
+                <span className="absolute inset-x-0 top-1/2 h-px bg-signal opacity-0 transition-[top] duration-[600ms] ease-in-out-quart group-on:top-full group-on:animate-[scan-edge_.7s_both]" aria-hidden />
+                <span
+                  className="absolute bottom-3 right-3 grid size-[52px] scale-0 place-items-center rounded-full bg-signal text-[13px] text-bone transition-transform duration-500 ease-out-expo group-on:scale-100 group-on:delay-200"
+                  aria-hidden
+                >
+                  {p.href ? "Visit" : "Soon"}
+                </span>
               </a>
             </li>
           ))}
         </ul>
       </div>
 
-      {/* floating preview (desktop) */}
+      {/* floating preview: needs a real cursor */}
       <div
         ref={preview}
-        className="pointer-events-none fixed left-0 top-0 z-40 hidden md:block"
+        className="pointer-events-none fixed left-0 top-0 z-40 hidden desk:block"
         style={{ width: 0, height: 0 }}
         aria-hidden
       >
@@ -167,7 +213,7 @@ export default function Work() {
           </div>
         </div>
       </div>
-      <div ref={cursor} className="pointer-events-none fixed left-0 top-0 z-[45] hidden md:block" aria-hidden>
+      <div ref={cursor} className="pointer-events-none fixed left-0 top-0 z-[45] hidden desk:block" aria-hidden>
         <div
           className={`absolute -left-11 -top-11 grid h-[88px] w-[88px] place-items-center rounded-full bg-signal text-[14px] text-bone transition-transform duration-500 ease-out-expo ${
             shown ? "scale-100" : "scale-0"
