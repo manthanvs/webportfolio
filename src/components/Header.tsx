@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { scrollTo, scroller, useMagnetic, useScramble } from "@/lib/fx";
+import { scrollTo, scroller, useMagnetic, useScramble, withBase } from "@/lib/fx";
 import { site } from "@/content";
 
 const LINKS = [
@@ -78,9 +79,18 @@ export default function Header({ visible }: { visible: boolean }) {
               e.preventDefault();
               scrollTo(0);
             }}
-            className="group pointer-events-auto flex items-center gap-2 text-[15px]"
+            className="group pointer-events-auto flex items-center gap-2.5 text-[15px]"
           >
-            <span className="transition-transform duration-500 ease-out-expo group-hover:rotate-[360deg]">©</span>
+            {/* transparent MS mark at its native 99×96 ratio; over dark sections a soft purple glow
+                lifts the dark metal M off the background */}
+            <Image
+              src={withBase("/images/logo-sm.webp")}
+              alt=""
+              width={99}
+              height={96}
+              className="h-[30px] w-auto shrink-0 transition-[scale,filter] duration-500 ease-out-expo group-hover:scale-110"
+              style={{ filter: light ? "none" : "brightness(1.6) drop-shadow(0 0 6px color-mix(in srgb, var(--color-signal-soft) 65%, transparent))" }}
+            />
             <span className="overflow-hidden">
               <span className="inline-block">{site.name}</span>
             </span>
@@ -111,7 +121,7 @@ export default function Header({ visible }: { visible: boolean }) {
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           className={`grid h-14 w-14 place-items-center rounded-full border border-white/10 transition-colors duration-300 md:h-[72px] md:w-[72px] ${
-            open ? "bg-signal text-ink" : "bg-ink text-bone"
+            open ? "bg-signal text-bone" : "bg-ink text-bone"
           }`}
         >
           <span className="relative block h-3 w-6">
@@ -186,7 +196,7 @@ export default function Header({ visible }: { visible: boolean }) {
                     site.socials
                       .filter((s) => s.href)
                       .map((s) => (
-                        <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="hover:text-signal">
+                        <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="hover:text-signal-soft">
                           {s.label}
                         </a>
                       ))

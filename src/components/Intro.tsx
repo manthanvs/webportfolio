@@ -52,7 +52,7 @@ export default function Intro() {
               className="group relative grid h-36 w-36 shrink-0 place-items-center overflow-hidden rounded-full bg-ink text-bone md:h-48 md:w-48"
             >
               <span className="absolute inset-0 translate-y-full rounded-full bg-signal transition-transform duration-700 ease-out-expo group-hover:translate-y-0" />
-              <span className="relative text-[17px] transition-colors duration-500 group-hover:text-ink">About me</span>
+              <span className="relative text-[17px]">About me</span>
             </a>
           </div>
         </div>

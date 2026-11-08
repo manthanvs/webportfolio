@@ -45,7 +45,14 @@ export default function Footer() {
   const socials = site.socials.filter((s) => s.href);
 
   return (
-    <footer id="contact" ref={root} data-theme="dark" className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-ink text-bone">
+    <footer
+      id="contact"
+      ref={root}
+      data-theme="dark"
+      className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-ink text-bone"
+      // deep purple from the logo, glowing softly behind the contact button
+      style={{ backgroundImage: "radial-gradient(55% 55% at 85% 62%, color-mix(in srgb, var(--color-signal-deep) 80%, transparent), transparent 70%)" }}
+    >
       <div className="footer-curve absolute inset-x-0 top-0 z-10 h-[12vh] overflow-hidden">
         <div className="absolute left-[-10%] top-[-100%] h-[200%] w-[120%] rounded-b-[50%] bg-bone" />
       </div>
@@ -69,10 +76,10 @@ export default function Footer() {
             ref={cta}
             href={site.email ? `mailto:${site.email}` : "#contact"}
             onClick={(e) => !site.email && e.preventDefault()}
-            className="group absolute right-[4%] top-0 -mt-16 grid h-32 w-32 place-items-center overflow-hidden rounded-full bg-signal text-ink md:right-[6%] md:-mt-26 md:h-52 md:w-52"
+            className="group absolute right-[4%] top-0 -mt-16 grid h-32 w-32 place-items-center overflow-hidden rounded-full bg-signal text-bone md:right-[6%] md:-mt-26 md:h-52 md:w-52"
           >
             <span className="absolute inset-0 translate-y-full rounded-full bg-bone transition-transform duration-700 ease-out-expo group-hover:translate-y-0" />
-            <span className="relative text-[17px]">Get in touch</span>
+            <span className="relative text-[17px] transition-colors duration-500 group-hover:text-ink">Get in touch</span>
           </a>
         </div>
 
@@ -97,8 +104,16 @@ export default function Footer() {
 
         <div className="mt-24 grid grid-cols-2 gap-8 border-t border-bone/10 pt-6 md:grid-cols-4">
           <div>
-            <p className="hud mb-2 text-bone/40">Edition</p>
-            <p className="text-[14px]">Vol. 01</p>
+            {/* sign-off: transparent MS mark at its native 497×480 ratio */}
+            <Image
+              src={withBase("/images/logo.webp")}
+              alt={`${site.name} logo`}
+              width={497}
+              height={480}
+              className="h-14 w-auto"
+              // brightened so the dark metal M reads on the ink background
+              style={{ filter: "brightness(1.6) drop-shadow(0 0 14px color-mix(in srgb, var(--color-signal) 60%, transparent))" }}
+            />
           </div>
           <div>
             <p className="hud mb-2 text-bone/40">Your local time</p>
@@ -109,7 +124,7 @@ export default function Footer() {
             <div className="flex flex-wrap gap-4 text-[14px]">
               {socials.length ? (
                 socials.map((s) => (
-                  <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="hover:text-signal">
+                  <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="hover:text-signal-soft">
                     {s.label}
                   </a>
                 ))
@@ -122,7 +137,7 @@ export default function Footer() {
             <button
               ref={top}
               onClick={() => scrollTo(0)}
-              className="hud rounded-full border border-bone/20 px-5 py-3 transition-colors hover:border-signal hover:text-signal"
+              className="hud rounded-full border border-bone/20 px-5 py-3 transition-colors hover:border-signal-soft hover:text-signal-soft"
             >
               Back to top ↑
             </button>

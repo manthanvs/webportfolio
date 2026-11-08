@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { gsap, reducedMotion } from "@/lib/fx";
+import Image from "next/image";
+import { gsap, reducedMotion, withBase } from "@/lib/fx";
 import { site } from "@/content";
 
 const MIN_MS = 1200; // never flash past — show at least this long
@@ -128,6 +129,21 @@ export default function Preloader({ onReveal, onDone }: { onReveal: () => void; 
 
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="w-[min(560px,80vw)]">
+          {/* MS monogram (transparent cutout, native 497×480): fixed height + auto width keeps its ratio.
+              GSAP fades the outer row out on exit, CSS fades the inner mark in — separate elements */}
+          <div className="pl-row mx-auto mb-10 w-fit md:mb-12">
+            <div className="pl-logo">
+              <Image
+                src={withBase("/images/logo.webp")}
+                alt=""
+                width={497}
+                height={480}
+                priority
+                className="h-28 w-auto md:h-36"
+                style={{ filter: "brightness(1.3) drop-shadow(0 0 26px color-mix(in srgb, var(--color-signal) 55%, transparent))" }}
+              />
+            </div>
+          </div>
           <div className="pl-row hud flex justify-between gap-6 text-bone/45">
             <span>{site.name}</span>
             <span>{site.role} — Portfolio</span>

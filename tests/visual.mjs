@@ -110,6 +110,15 @@ async function run(name, viewport, isMobile) {
   );
   if (broken.length) fail(`[${name}] images failed to load: ${broken.join(", ")}`);
 
+  // logos must render at their native aspect ratio (no stretching)
+  const logos = await page.evaluate(() =>
+    [...document.querySelectorAll('img[src*="logo"]')]
+      .filter((i) => i.clientWidth && i.naturalWidth)
+      .map((i) => ({ src: i.getAttribute("src"), drawn: i.clientWidth / i.clientHeight, native: i.naturalWidth / i.naturalHeight })),
+  );
+  if (logos.length < 2) fail(`[${name}] expected header + footer logos, found ${logos.length}`);
+  for (const l of logos) if (Math.abs(l.drawn / l.native - 1) > 0.02) fail(`[${name}] logo distorted: ${JSON.stringify(l)}`);
+
   // menu opens / closes and navigates
   await page.evaluate(() => window.scrollTo(0, 1400));
   await page.waitForTimeout(900);

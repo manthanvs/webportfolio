@@ -168,7 +168,7 @@ export default function About() {
 
             <div className="ab-depth-3 absolute -bottom-4 right-[3%] w-[64%] md:-bottom-16 md:w-[54%]">
               <div data-theme="dark" className="ab-card notch-sm bg-ink px-5 pb-5 pt-6 text-bone md:px-6 md:pb-6 md:pt-7">
-                <p className="hud text-signal">{"// File 03 — Profile"}</p>
+                <p className="hud text-signal-soft">{"// File 03 — Profile"}</p>
                 <dl className="mt-4 space-y-2">
                   {FILE.map(([k, v]) => (
                     <div key={k} className="hud flex items-baseline gap-2">

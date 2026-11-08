@@ -12,8 +12,9 @@ function Cover({ p, i }: { p: Project; i: number }) {
     <div
       className="absolute inset-0"
       style={{
-        background: `radial-gradient(80% 70% at 75% 20%, hsl(${p.hue} 90% 62% / .9), transparent 60%),
-          radial-gradient(70% 80% at 10% 100%, hsl(${(p.hue + 40) % 360} 70% 30%), transparent 70%),
+        // dusky purples matching the logo (≈ #884ebc highlight, #301249 shadow at hue 272); hue varies per project
+        background: `radial-gradient(80% 70% at 75% 20%, hsl(${p.hue} 45% 52% / .9), transparent 60%),
+          radial-gradient(70% 80% at 10% 100%, hsl(${p.hue} 60% 18%), transparent 70%),
           #15161a`,
       }}
     >
@@ -168,7 +169,7 @@ export default function Work() {
       </div>
       <div ref={cursor} className="pointer-events-none fixed left-0 top-0 z-[45] hidden md:block" aria-hidden>
         <div
-          className={`absolute -left-11 -top-11 grid h-[88px] w-[88px] place-items-center rounded-full bg-signal text-[14px] text-ink transition-transform duration-500 ease-out-expo ${
+          className={`absolute -left-11 -top-11 grid h-[88px] w-[88px] place-items-center rounded-full bg-signal text-[14px] text-bone transition-transform duration-500 ease-out-expo ${
             shown ? "scale-100" : "scale-0"
           }`}
         >

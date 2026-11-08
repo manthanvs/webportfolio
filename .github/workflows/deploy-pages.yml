@@ -32,6 +32,8 @@ jobs:
         env:
           # "/<repo>" for a project site (here /webportfolio); empty for a user site or custom domain
           NEXT_PUBLIC_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          # absolute origin for the link-preview image, e.g. https://manthanvs.github.io
+          NEXT_PUBLIC_SITE_ORIGIN: ${{ steps.pages.outputs.origin }}
       - uses: actions/upload-pages-artifact@v5
         with:
           path: build

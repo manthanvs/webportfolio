@@ -48,20 +48,28 @@ The site is a static export (`output: "export"` in `next.config.ts`), so any sta
 **GitHub Pages** (live at [manthanvs.github.io/webportfolio](https://manthanvs.github.io/webportfolio/)):
 [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) builds and deploys on every push to `main`.
 One-time setup: *Settings → Pages → Build and deployment → Source: **GitHub Actions***. The workflow sets
-`NEXT_PUBLIC_BASE_PATH` to the repo path (`/webportfolio`), which `next.config.ts` uses as `basePath`.
+`NEXT_PUBLIC_BASE_PATH` to the repo path (`/webportfolio`), which `next.config.ts` uses as `basePath`, and
+`NEXT_PUBLIC_SITE_ORIGIN` (`https://manthanvs.github.io`) so link previews get an absolute image URL.
 
 **Any host at a domain root** (e.g. a Render *Static Site*): build command `npm install && npm run build`,
-publish directory `build`, no base path needed.
+publish directory `build`, no base path needed; set `NEXT_PUBLIC_SITE_ORIGIN` to the site's URL for link previews.
 
 ## Editing content
 
 All personal content lives in [`src/content.ts`](src/content.ts): name, role, email, social links and projects.
-The intro line and About paragraphs are still placeholder copy marked `TODO`.
+The intro line and About paragraphs are written from the resume and cover letter.
 
 Projects use a generated cover until you add an image to `public/images/work/` and set `image` on the project.
 
 Photos: `public/images/portrait-bw.jpg` (black & white — hero, About detail strip) and `public/images/portrait.jpg`
 (colour — About main frame, footer avatar). The hero backdrop is sampled from the B&W photo's near-black studio.
+
+Logo (MS monogram): transparent cutouts `public/images/logo.webp` (497×480 — loader, footer) and
+`public/images/logo-sm.webp` (99×96 — header), always sized by height with `w-auto` so the ratio holds;
+`src/app/icon.png` + `apple-icon.png` (browser/home-screen icon) and `src/app/opengraph-image.jpg` (link preview).
+
+Brand colours (`src/app/globals.css`) are sampled from the logo's purple pixels: `signal` `#7c50a2` (accent fills),
+`signal-soft` `#b07fdc` (small text and hovers on dark) and `signal-deep` `#250d48` (background glows).
 
 ## Project structure
 

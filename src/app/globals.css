@@ -5,7 +5,10 @@
   --color-ink-2: #1b1c20;
   --color-bone: #eceae5;
   --color-mist: #a6a5ae; /* sampled from the portrait backdrop */
-  --color-signal: #ff5a1f;
+  /* purples sampled from the MS logo (lightness percentiles of its violet pixels) */
+  --color-signal: #7c50a2; /* S mid-tone — accent fills, lines */
+  --color-signal-soft: #b07fdc; /* brightest highlight — small text + hovers on dark */
+  --color-signal-deep: #250d48; /* deep body — background glows */
   --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jbmono), ui-monospace, monospace;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -25,7 +28,7 @@ body {
 }
 ::selection {
   background: var(--color-signal);
-  color: var(--color-ink);
+  color: var(--color-bone);
 }
 :focus-visible {
   outline: 2px solid var(--color-signal);
@@ -59,6 +62,18 @@ html.lenis body {
 }
 .notch-sm {
   clip-path: polygon(0 0, 34% 0, 38% 10px, 100% 10px, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+}
+
+/* loader logo: blurred fade-in (on an inner element; GSAP owns the outer one) */
+.pl-logo {
+  animation: pl-logo-in 1.2s var(--ease-out-expo) both;
+}
+@keyframes pl-logo-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(8px);
+  }
 }
 
 .marquee-track {
