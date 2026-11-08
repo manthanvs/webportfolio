@@ -36,9 +36,18 @@ Requires Node.js 20.9 or newer.
 ```bash
 npm install
 npm run dev            # http://localhost:3000
-npm run build && npm start
+npm run build          # static export → build/
+npm start              # serves build/ at http://localhost:3000
 npm run test:visual -- http://localhost:3000   # Playwright smoke test (uses installed Chrome), screenshots → tests/shots
 ```
+
+## Deploy
+
+The site is a static export (`output: "export"` in `next.config.ts`), so any static host works — no Node server.
+On **Render**, create a *Static Site* with:
+
+- Build command: `npm install && npm run build`
+- Publish directory: `build`
 
 ## Editing content
 
@@ -47,7 +56,7 @@ The intro line and About paragraphs are still placeholder copy marked `TODO`.
 
 Projects use a generated cover until you add an image to `public/images/work/` and set `image` on the project.
 
-Photos: `public/images/portrait-bw.jpg` (black & white — hero, About detail strip) and `public/images/portrait.png`
+Photos: `public/images/portrait-bw.jpg` (black & white — hero, About detail strip) and `public/images/portrait.jpg`
 (colour — About main frame, footer avatar). The hero backdrop is sampled from the B&W photo's near-black studio.
 
 ## Project structure

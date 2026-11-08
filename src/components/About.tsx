@@ -134,7 +134,7 @@ export default function About() {
               <div className="notch relative aspect-[4/5] overflow-hidden">
                 <div className="ab-reveal absolute inset-0 overflow-hidden bg-mist">
                   <Image
-                    src="/images/portrait.png"
+                    src="/images/portrait.jpg"
                     alt={site.name}
                     fill
                     sizes="(max-width: 768px) 84vw, 40vw"

@@ -86,7 +86,7 @@ async function run(name, viewport, isMobile) {
         // both photos must be decoded: B&W main frame + colour detail strip
         photos: [...document.querySelectorAll("#about img")]
           .filter((i) => i.complete && i.naturalWidth > 0)
-          .map((i) => (i.currentSrc.includes("portrait-bw") ? "bw" : i.currentSrc.includes("portrait.png") ? "colour" : "?")),
+          .map((i) => (i.currentSrc.includes("portrait-bw") ? "bw" : i.currentSrc.includes("portrait.jpg") ? "colour" : "?")),
       }));
       if (!about.photos.includes("bw") || !about.photos.includes("colour")) fail(`[${name}] about photos not both loaded: ${about.photos}`);
       if (!about.card.includes("Manthan Sankpal")) fail(`[${name}] about data card did not settle: "${about.card}"`);
